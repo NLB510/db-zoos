@@ -57,6 +57,37 @@ server.get("/api/zoos/:id", (req, res) => {
     });
 });
 
+// POST
+
+server.post("/api/zoos", (req, res) => {
+  const zoo = req.body;
+
+  if (!zoo.name) {
+    return res.status(400).json({
+      errorMessage: "Please add a name to the post."
+    });
+  }
+
+  db.insert(zoo)
+    .into("zoos")
+    .then(ids => {
+      db("zoos")
+        .where({ id: ids[0] })
+        .first()
+        .then(zoo => {
+          return res.status(201).json(zoo);
+        })
+        .catch(err => {
+          res.status(500).json({
+            error: "There was an error making your post"
+          });
+        });
+    })
+    .catch(error => {
+      res.status(500).json({ error: "There was an error making your request" });
+    });
+});
+
 const port = 3300;
 server.listen(port, function() {
   console.log(`\n=== Web API Listening on http://localhost:${port} ===\n`);
