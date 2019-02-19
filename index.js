@@ -88,6 +88,59 @@ server.post("/api/zoos", (req, res) => {
     });
 });
 
+// PUT
+server.put("/api/zoos/:id", (req, res) => {
+  const changes = req.body;
+  const { id } = req.params;
+
+  if (!changes.name) {
+    return res.status(400).json({ errorMessage: "Please add a name." });
+  }
+
+  db("zoos")
+    .where({ id: id })
+    .update(changes)
+    .then(count => {
+      if (count === 0) {
+        return res.status(404).json({
+          errorMessage: "The post with the specified ID could not be found"
+        });
+      } else {
+        res.status(200).json(count);
+      }
+    })
+    .catch(err => {
+      res.status(500).json({
+        error: "There was an error with your request."
+      });
+    });
+});
+
+// DELETE
+
+server.delete('/api/zoos/:id', (req, res) => {
+  const {id} = req.params;
+
+  db('zoos')
+  .where({id})
+  .del()
+  .then(count => {
+    console.log(count)
+    if (count === 0) {
+      return res.status(404).json({message: 'The item with the specified ID does not exist.'})
+    } else {
+      res.status(200).json({message: 'The data has been removed.'})
+    }
+  })
+  .catch(err => {
+    res.status(500).json({
+      error: 'There was an error removing the data.'
+    })
+  })
+
+})
+
+
 const port = 3300;
 server.listen(port, function() {
   console.log(`\n=== Web API Listening on http://localhost:${port} ===\n`);
